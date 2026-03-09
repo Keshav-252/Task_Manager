@@ -178,6 +178,7 @@ Get all registered users.
 
 DELETE /api/v1/admin/users/:id  
 Delete a user and their associated tasks.
+
 ---
 
 # API Documentation
