@@ -111,9 +111,9 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
 
 Start the backend server:
-```
 npm start
 Backend runs on: http://localhost:3000
+```
 ---
 
 # Frontend Setup
@@ -122,12 +122,12 @@ Backend runs on: http://localhost:3000
 cd Frontend
 npm install
 npm run dev
-```
+
 Frontend runs on: http://localhost:5173
+```
 ---
 
 # API Base URL
-
 ```
 http://localhost:3000/api/v1
 ```
@@ -136,23 +136,18 @@ http://localhost:3000/api/v1
 # API Endpoints
 
 ### Authentication
-
+```
 POST /api/v1/auth/signup
 POST /api/v1/auth/login
-
+```
 
 ### Tasks
-
+```
 GET /api/v1/tasks
 POST /api/v1/tasks
 PUT /api/v1/tasks/:id
 DELETE /api/v1/tasks/:id
-
-
-Protected routes require:
-Authorization: Bearer <JWT_TOKEN>
-
-
+```
 ---
 
 # API Documentation
@@ -162,7 +157,7 @@ The Postman collection for testing all API endpoints is included in this reposit
 Location:
 
 ```
-docs/task-manager-api.postman_collection.json
+docs/Task Manager API.postman_collection.json
 ```
 
 To use it:
