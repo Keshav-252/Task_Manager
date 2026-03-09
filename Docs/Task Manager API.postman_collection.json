@@ -1,0 +1,366 @@
+{
+  "info": {
+    "_postman_id": "430c29f8-d4ba-450b-9956-d6d228010731",
+    "name": "Task Manager API",
+    "description": "This API allows users to register, login and manage tasks.  \nIt supports JWT authentication and role based access.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47485788",
+    "_collection_link": "https://go.postman.co/collection/47485788-430c29f8-d4ba-450b-9956-d6d228010731?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup API",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{   \r\n    \"name\": \"ALex123\",\r\n    \"email\": \"alex@example.com\",\r\n    \"password\": \"P@ssw0rd123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/auth/signup",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "signup"
+              ]
+            },
+            "description": "# **Signup (Create Account)**\n\nCreates a new user account.\n\n---\n\n## **Endpoint**\n\nPOST /api/v1/auth/signup\n\n---\n\n## **Headers**\n\nContent-Type: application/json  \nAccept: application/json\n\n---\n\n## **Request Body**\n\nThe request body is validated using **Zod** (`UserSchema.safeParse(req.body)`).\n\n### **Fields & Constraints**\n\n**email** (string, required)\n\n- Error message: Email is required\n    \n- Type message: Email must be a string\n    \n- Normalization:\n    \n    - `.trim()`\n        \n    - `.toLowerCase()`\n        \n- Must be a valid email format\n    \n    - Error message: Invalid email format\n        \n- Maximum length: 100\n    \n    - Error message: Email too long\n        \n\n---\n\n**name** (string, required)\n\n- Error message: Name is required\n    \n- Type message: Name must be a string\n    \n- Normalization:\n    \n    - `.trim()`\n        \n- Minimum length: 3\n    \n    - Error message: Name must be at least 3 characters\n        \n- Maximum length: 20\n    \n    - Error message: Name cannot exceed 20 characters\n        \n- Allowed characters: letters, numbers, underscore only  \n    Regex: `^[a-zA-Z0-9_]+$`\n    \n    - Error message: Name can only contain letters, numbers, and underscore\n        \n\n---\n\n**password** (string, required)\n\n- Error message: Password is required\n    \n- Type message: Password must be a string\n    \n- Minimum length: 8\n    \n    - Error message: Password must be at least 8 characters\n        \n\nPassword must contain at least:\n\n- 1 uppercase letter\n    \n- 1 lowercase letter\n    \n- 1 number\n    \n- 1 special character (non-alphanumeric)\n    \n\nError messages:\n\n- Password must contain at least one uppercase letter\n    \n- Password must contain at least one lowercase letter\n    \n- Password must contain at least one number\n    \n- Password must contain at least one special character\n    \n\n---\n\n## **Example Request Body**\n\n``` json\n{\n\"name\": \"Ben_123\",\n\"email\": \"ben@example.com\",\n\"password\": \"P@ssw0rd123!\"\n}\n\n ```\n\n---\n\n## **Success Response (200)**\n\nAccount created successfully.\n\nExample:\n\n``` json\n{\n\"msg\": \"Congratulations!! Account has been created for you..\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Validation error\"\n}\n},\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"This email is already registered\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "Login API",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{   \r\n   \"email\": \"alex@example.com\",\r\n    \"password\": \"P@ssw0rd123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "# **Login**\n\nAuthenticates a user using **email and password** and returns a **JWT token** used to authorize subsequent requests.\n\n---\n\n## **Endpoint**\n\nPOST /api/v1/auth/login\n\n---\n\n## **Headers**\n\nContent-Type: application/json\n\nNote: This endpoint typically **does not require an Authorization header**.\n\n---\n\n## **Request Body**\n\nJSON fields:\n\nemail (string, required) — User email address  \npassword (string, required) — User password\n\nExample:\n\n``` json\n{\n\"email\": \"ben@example.com\",\n\"password\": \"P@ssw0rd123!\"\n}\n\n ```\n\n---\n\n## **Authentication & Behavior**\n\nThis endpoint validates the user's **email and password**.\n\nThe controller performs the following steps:\n\n1. Validates the request body (email and password).\n    \n2. Searches for the user using the provided **email**.\n    \n3. Compares the provided password with the stored hashed password using **bcrypt**.\n    \n4. If the credentials are valid, a **JWT token** is generated and returned.\n    \n\nThe token can then be used in the **Authorization header** to access protected endpoints.\n\nExample header for protected APIs:\n\nAuthorization: Bearer\n\n---\n\n## **Success Response (200)**\n\nReturns a message, JWT token, and user details.\n\nExample:\n\n``` json\n{\n\"msg\": \"Login successful\",\n\"token\": \"\",\n\"name\": \"Ben123\",\n\"email\": \"ben@example.com\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Validation error\"\n}\n},\n{\n\"status\": 401,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Invalid credentials\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        }
+      ],
+      "description": "## Auth\n\nAuthentication endpoints for the **Task Manager API**.\n\n- Base URL: `http://localhost:3000`\n    \n- Common paths: `/api/v1/auth/\\*` (e.g., signup, login)\n    \n\n### How to use\n\n1. Call **Signup** / **Login** to obtain a JWT.\n    \n2. Use the token for protected endpoints:\n    \n\n``` http\nAuthorization: Bearer {{token}}\n\n ```"
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "GetTasks API",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFkODZjMzU1YmFiNWNjYzI4YTY2OTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3Mjk3OTk2MSwiZXhwIjoxNzczMDY2MzYxfQ.TprDCi16ersxlcxBtqKfaMMuCEfgV7x7jZBzhudPqkM",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "tasks"
+              ]
+            },
+            "description": "# **Get Tasks**\n\nFetches all tasks belonging to the authenticated user.\n\n---\n\n## **Endpoint**\n\nGET /api/v1/tasks\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nAccept: application/json\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**. The controller reads the authenticated user id from **req.userId**.\n\nThe API retrieves all tasks associated with the authenticated user and returns them as a list.\n\nThis ensures that users can only access **their own tasks**.\n\n---\n\n## **Success Response (200)**\n\nReturns a JSON object containing the list of tasks, a status flag, and a message.\n\nExample:\n\n``` json\n{\n\"tasks\": [\n{\n\"_id\": \"603d9f0f1c4ae12f0c8b4567\",\n\"description\": \"Milk, bread, eggs\",\n\"user\": \"69acdd88c1286341ac7cec41\",\n\"createdAt\": \"2023-01-01T12:00:00.000Z\",\n\"updatedAt\": \"2023-01-01T12:00:00.000Z\"\n}\n],\n\"status\": true,\n\"msg\": \"Tasks found successfully..\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 401,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Unauthorized\"\n}\n},\n{\n\"status\": 403,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Forbidden\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "GetTask API",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFkODZjMzU1YmFiNWNjYzI4YTY2OTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3Mjk3OTk2MSwiZXhwIjoxNzczMDY2MzYxfQ.TprDCi16ersxlcxBtqKfaMMuCEfgV7x7jZBzhudPqkM",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/tasks/69ad875255bab5ccc28a6699",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "69ad875255bab5ccc28a6699"
+              ]
+            },
+            "description": "# **Get Task by ID**\n\nFetches a specific task belonging to the authenticated user.\n\n---\n\n## **Endpoint**\n\nGET /api/v1/tasks/:taskId\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login  \nAccept: application/json\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**. The controller reads the authenticated user id from **req.userId**.\n\nThe API first validates whether the provided **taskId** is a valid MongoDB ObjectId.\n\nThen it searches for a task matching both:\n\n- authenticated **userId**\n    \n- provided **taskId**\n    \n\nThis ensures that a user can only access **their own tasks**.\n\n---\n\n## **Success Response (200)**\n\nReturns a JSON object containing the task, a status flag, and a message.\n\nExample:\n\n``` json\n{\n\"task\": {\n\"_id\": \"69acf449c1286341ac7cec45\",\n\"user\": \"69acdd88c1286341ac7cec41\",\n\"description\": \"Take lunch at 2\",\n\"createdAt\": \"2026-03-08T04:00:09.273Z\",\n\"updatedAt\": \"2026-03-08T04:08:18.472Z\",\n\"__v\": 0\n},\n\"status\": true,\n\"msg\": \"Task found successfully..\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Task id not valid\"\n}\n},\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"No task found..\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "PostTask API",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFkODZjMzU1YmFiNWNjYzI4YTY2OTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3Mjk3OTk2MSwiZXhwIjoxNzczMDY2MzYxfQ.TprDCi16ersxlcxBtqKfaMMuCEfgV7x7jZBzhudPqkM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"description\": \"Go to play at 4:00 PM\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "tasks"
+              ]
+            },
+            "description": "# **Create Task**\n\nCreates a new task for the authenticated user.\n\n---\n\n## **Endpoint**\n\nPOST /api/v1/tasks\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nContent-Type: application/json  \nAccept: application/json\n\n---\n\n## **Request Body**\n\nJSON fields:\n\ndescription (string, required) — Brief description of the task.\n\nExample:\n\n``` json\n{\n\"description\": \"Take lunch at 1\"\n}\n\n ```\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**.\n\nThe controller reads the authenticated user's id from **req.userId** and creates a new task associated with that user.\n\nThe task is stored in the database with the following information:\n\n- user id\n    \n- task description\n    \n- creation timestamp\n    \n- update timestamp\n    \n\n---\n\n## **Success Response (200)**\n\nReturns the created task object along with a success message.\n\nExample:\n\n``` json\n{\n\"task\": {\n\"_id\": \"69acf449c1286341ac7cec45\",\n\"user\": \"69acdd88c1286341ac7cec41\",\n\"description\": \"Take lunch at 1\",\n\"createdAt\": \"2026-03-08T04:00:09.273Z\",\n\"updatedAt\": \"2026-03-08T04:00:09.273Z\",\n\"__v\": 0\n},\n\"status\": true,\n\"msg\": \"Task created successfully..\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Provide description of task\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateTask API",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFkODZjMzU1YmFiNWNjYzI4YTY2OTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3Mjk3OTk2MSwiZXhwIjoxNzczMDY2MzYxfQ.TprDCi16ersxlcxBtqKfaMMuCEfgV7x7jZBzhudPqkM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"description\": \"Take Bath at 10:00 AM\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/tasks/69ad875255bab5ccc28a6699",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "69ad875255bab5ccc28a6699"
+              ]
+            },
+            "description": "# **Update Task**\n\nUpdates the description of an existing task.  \nOnly the **task owner** is allowed to update their task.\n\n---\n\n## **Endpoint**\n\nPUT /api/v1/tasks/:taskId\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nContent-Type: application/json  \nAccept: application/json\n\n---\n\n## **Path Parameters**\n\ntaskId (string, required) — The ObjectId of the task to update.  \nIt must be a **valid MongoDB ObjectId**.\n\n---\n\n## **Request Body**\n\nJSON fields:\n\ndescription (string, required) — New description for the task.\n\nExample:\n\n``` json\n{\n\"description\": \"Take lunch at 2\"\n}\n\n ```\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**.\n\nThe controller performs the following checks:\n\n1. Validates whether the provided **taskId** is a valid MongoDB ObjectId.\n    \n2. Ensures the **description field is provided** in the request body.\n    \n3. Searches for the task using the given **taskId**.\n    \n4. Verifies that the authenticated user is the **owner of the task**.\n    \n5. If authorized, the task description is updated and the updated task is returned.\n    \n\n---\n\n## **Success Response (200)**\n\nReturns the updated task object along with a success message.\n\nExample:\n\n``` json\n{\n\"task\": {\n\"_id\": \"69acf449c1286341ac7cec45\",\n\"user\": \"69acdd88c1286341ac7cec41\",\n\"description\": \"Take lunch at 2\",\n\"createdAt\": \"2026-03-08T04:00:09.273Z\",\n\"updatedAt\": \"2026-03-08T04:08:18.472Z\",\n\"__v\": 0\n},\n\"status\": true,\n\"msg\": \"Task updated successfully..\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Task id not valid\"\n}\n},\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Provide description of task\"\n}\n},\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Task with given id not found\"\n}\n},\n{\n\"status\": 403,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"You can't update this task\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "DeleteTask API",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFkODZjMzU1YmFiNWNjYzI4YTY2OTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3Mjk3OTk2MSwiZXhwIjoxNzczMDY2MzYxfQ.TprDCi16ersxlcxBtqKfaMMuCEfgV7x7jZBzhudPqkM",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/tasks/69ad875255bab5ccc28a6699",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "69ad875255bab5ccc28a6699"
+              ]
+            },
+            "description": "# **Delete Task**\n\nDeletes a specific task belonging to the authenticated user.\n\n---\n\n## **Endpoint**\n\nDELETE /api/v1/tasks/:taskId\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nAccept: application/json\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid JWT. The controller reads the authenticated user id from **req.userId**.\n\nThe API performs the following checks:\n\n1. Validates whether the provided **taskId** is a valid MongoDB ObjectId.\n    \n2. Searches for the task using the provided **taskId**.\n    \n3. Verifies that the authenticated user is the **owner of the task**.\n    \n4. If authorized, the task is deleted from the database.\n    \n\nThis ensures that users can only **delete their own tasks**.\n\n---\n\n## **Success Response (200)**\n\nReturns a success message after the task is deleted.\n\nExample:\n\n``` json\n{\n\"status\": true,\n\"msg\": \"Task deleted successfully..\"\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Task id not valid\"\n}\n},\n{\n\"status\": 404,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Task not found\"\n}\n},\n{\n\"status\": 403,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Not authorized\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        }
+      ],
+      "description": "## Tasks\n\nCRUD endpoints for managing tasks that belong to the **authenticated user**.\n\n- Base URL: `http://localhost:3000`\n- Common paths: `/api/v1/tasks` and `/api/v1/tasks/:taskId`\n\n### Auth\n\nAll requests in this folder require a valid JWT:\n\n```http\nAuthorization: Bearer {{token}}\n```\n\n### Notes\n\n- Endpoints typically scope results by the user id from the JWT (a user can only access their own tasks).\n- `:taskId` is expected to be a valid MongoDB ObjectId."
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "ListUsers API",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFiZDE5MzdmZWQ4YjQ4NTc4ZDAwYWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzI5NTIxODgsImV4cCI6MTc3MzAzODU4OH0.WVkN_W-hR0hgjzGgoR1uKfPSixM5lqx9jmQdWYQSnUQ",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/admin/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ]
+            },
+            "description": "# **List Users (Admin)**\n\nFetches all registered users in the system.  \nThis endpoint is intended for **admin access** to view the list of users.\n\n---\n\n## **Endpoint**\n\nGET /api/v1/admin/users\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nAccept: application/json\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**.\n\nThe controller retrieves all users from the database using **User.find()** and excludes the password field using:\n\n`select(\"-password\")`\n\nThis ensures that **sensitive information such as passwords is not returned** in the response.\n\nThe response returns:\n\n- a list of users\n    \n- a status flag\n    \n\n---\n\n## **Success Response (200)**\n\nReturns a JSON object containing all users and a status flag.\n\nExample:\n\n``` json\n{\n\"users\": [\n{\n\"_id\": \"69abd1937fed8b48578d00ae\",\n\"name\": \"Admin\",\n\"email\": \"john@gmail.com\",\n\"role\": \"admin\",\n\"createdAt\": \"2026-03-07T07:19:47.352Z\",\n\"updatedAt\": \"2026-03-07T07:19:47.352Z\",\n\"__v\": 0\n},\n{\n\"_id\": \"69abe5821eddbe0489bf9052\",\n\"name\": \"Mohan\",\n\"email\": \"mohan@example.com\",\n\"role\": \"user\",\n\"createdAt\": \"2026-03-07T08:44:50.626Z\",\n\"updatedAt\": \"2026-03-07T08:44:50.626Z\",\n\"__v\": 0\n},\n{\n\"_id\": \"69acdd88c1286341ac7cec41\",\n\"name\": \"Ben123\",\n\"email\": \"ben@example.com\",\n\"role\": \"user\",\n\"createdAt\": \"2026-03-08T02:23:04.433Z\",\n\"updatedAt\": \"2026-03-08T02:23:04.433Z\",\n\"__v\": 0\n}\n],\n\"status\": true\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 401,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Unauthorized\"\n}\n},\n{\n\"status\": 403,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"status\": false,\n\"msg\": \"Forbidden\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateUserRole API",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFiZDE5MzdmZWQ4YjQ4NTc4ZDAwYWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzI5NTIxODgsImV4cCI6MTc3MzAzODU4OH0.WVkN_W-hR0hgjzGgoR1uKfPSixM5lqx9jmQdWYQSnUQ",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"role\":\"user\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/admin/users/69abe5821eddbe0489bf9052/role",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "69abe5821eddbe0489bf9052",
+                "role"
+              ]
+            },
+            "description": "# **Update User Role (Admin)**\n\nUpdates the role of a specific user.  \nThis endpoint is intended for **admin use** to change a user's role between **user** and **admin**.\n\n---\n\n## **Endpoint**\n\nPATCH /api/v1/admin/users/:id\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nContent-Type: application/json  \nAccept: application/json\n\n---\n\n## **Request Body**\n\nExample:\n\n``` json\n{\n\"role\": \"admin\"\n}\n\n ```\n\n### Fields\n\nrole — New role assigned to the user. Allowed values:\n\n- user\n    \n- admin\n    \n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**.\n\nThe controller performs the following checks:\n\n1. Validates whether the provided **user id** is a valid MongoDB ObjectId.\n    \n2. Ensures that the provided **role** is either `\"user\"` or `\"admin\"`.\n    \n3. Updates the user's role in the database.\n    \n4. Returns the updated user information while excluding the password field.\n    \n\nThe updated user is returned using:\n\n`findByIdAndUpdate(id, { role }, { returnDocument: \"after\" })`\n\nwhich ensures the **updated document is returned in the response**.\n\n---\n\n## **Success Response (200)**\n\nReturns the updated user and a status flag.\n\nExample:\n\n``` json\n{\n\"user\": {\n\"_id\": \"69abe5821eddbe0489bf9052\",\n\"name\": \"Mohan\",\n\"email\": \"mohan@example.com\",\n\"role\": \"admin\",\n\"createdAt\": \"2026-03-07T08:44:50.626Z\",\n\"updatedAt\": \"2026-03-08T06:52:08.991Z\",\n\"__v\": 0\n},\n\"status\": true\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Invalid user id\"\n}\n},\n{\n\"status\": 400,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Invalid role\"\n}\n},\n{\n\"status\": 404,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"User not found\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Internal Server Error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "DeleteUser API",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFiZDE5MzdmZWQ4YjQ4NTc4ZDAwYWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzI5NTIxODgsImV4cCI6MTc3MzAzODU4OH0.WVkN_W-hR0hgjzGgoR1uKfPSixM5lqx9jmQdWYQSnUQ",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/admin/users/69abe5821eddbe0489bf9052",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "69abe5821eddbe0489bf9052"
+              ]
+            },
+            "description": "# **Delete User (Admin)**\n\nDeletes a specific user from the system.  \nWhen a user is deleted, all tasks belonging to that user are also removed.\n\nThis endpoint is intended for **admin use only**.\n\n---\n\n## **Endpoint**\n\nDELETE /api/v1/admin/users/:id\n\n---\n\n## **Headers**\n\nAuthorization: Bearer (required) — JWT obtained from login/signup  \nAccept: application/json\n\n---\n\n## **Authentication & Behavior**\n\nThe endpoint expects a valid **JWT token**.\n\nThe controller performs the following checks:\n\n1. Searches for the user using the provided **id**.\n    \n2. If the user does not exist, a **404 error** is returned.\n    \n3. If the user has role **admin**, deletion is prevented to protect admin accounts.\n    \n4. If the user is valid, the user is deleted from the database.\n    \n5. All tasks associated with that user are also deleted using:\n    \n\n`Task.deleteMany({ user: id })`\n\nThis ensures there are **no orphan tasks left in the database**.\n\n---\n\n## **Success Response (200)**\n\nReturns a success message after deleting the user and their tasks.\n\nExample:\n\n``` json\n{\n\"msg\": \"User and tasks deleted\",\n\"status\": true\n}\n\n ```\n\n---\n\n## **Error Responses**\n\n``` json\n[\n{\n\"status\": 403,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Admins cannot be deleted\"\n}\n},\n{\n\"status\": 404,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"User not found\"\n}\n},\n{\n\"status\": 500,\n\"headers\": {\n\"Content-Type\": \"application/json\"\n},\n\"body\": {\n\"msg\": \"Server error\"\n}\n}\n]\n\n ```"
+          },
+          "response": []
+        }
+      ],
+      "description": "## Admin\n\nAdministrative endpoints for managing users.\n\n- Base URL: `http://localhost:3000`\n    \n- Common paths: `/api/v1/admin/users/\\*` (e.g., list users, update role, delete user)\n    \n\n### Auth & Role\n\nRequires a valid JWT **and** an `admin` role:\n\n``` http\nAuthorization: Bearer {{token}}\n\n ```\n\nIf a non-admin user calls these endpoints, the API should return **403 Forbidden**."
+    }
+  ]
+}
