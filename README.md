@@ -114,6 +114,14 @@ Start the backend server:
 npm start
 Backend runs on: http://localhost:3000
 ```
+## Database Seeding
+
+A seed script is included to create the initial admin user.
+This is useful for setting up the first administrator account in the system.
+Run the following command from the Backend directory:
+```
+node seedAdmin.js
+```
 ---
 
 # Frontend Setup
@@ -127,7 +135,7 @@ Frontend runs on: http://localhost:5173
 ```
 ---
 
-# API Base URL
+## API Base URL
 ```
 http://localhost:3000/api/v1
 ```
@@ -135,19 +143,41 @@ http://localhost:3000/api/v1
 
 # API Endpoints
 
-### Authentication
-```
-POST /api/v1/auth/signup
-POST /api/v1/auth/login
-```
+## Authentication
 
-### Tasks
-```
-GET /api/v1/tasks
-POST /api/v1/tasks
-PUT /api/v1/tasks/:id
-DELETE /api/v1/tasks/:id
-```
+POST /api/v1/auth/signup  
+Create a new user account.
+
+POST /api/v1/auth/login  
+Login and receive a JWT token.
+
+---
+
+## Tasks (User)
+
+GET /api/v1/tasks  
+Get all tasks of the authenticated user.
+
+POST /api/v1/tasks  
+Create a new task.
+
+PUT /api/v1/tasks/:id  
+Update a specific task.
+
+DELETE /api/v1/tasks/:id  
+Delete a specific task.
+
+---
+
+## Admin Routes
+
+These routes require **admin role authorization**.
+
+GET /api/v1/admin/users  
+Get all registered users.
+
+DELETE /api/v1/admin/users/:id  
+Delete a user and their associated tasks.
 ---
 
 # API Documentation
